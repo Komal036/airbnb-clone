@@ -20,6 +20,9 @@ def create_booking(payload: schemas.BookingCreateIn, db: Session = Depends(get_d
     if not guest:
         raise HTTPException(status_code=404, detail="Guest user not found")
 
+    if listing.host_id == guest.id:
+        raise HTTPException(status_code=400, detail="You can't book your own listing")
+
     if payload.guests > listing.max_guests:
         raise HTTPException(
             status_code=400,

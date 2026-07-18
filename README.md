@@ -125,21 +125,21 @@ wishlists         id, user_id -> users, listing_id -> listings, created_at
 All endpoints are served from the backend root; full interactive docs live
 at `/docs`.
 
-| Method          | Path                          | Purpose                                                                        |
-| --------------- | ----------------------------- | ------------------------------------------------------------------------------ |
-| POST            | `/auth/signup`, `/auth/login` | mocked auth, returns the user object                                           |
-| GET             | `/listings`                   | search + filter (location, dates, guests, price, type, amenities) + pagination |
-| GET             | `/listings/{id}`              | full listing detail                                                            |
-| GET             | `/listings/{id}/availability` | booked date ranges, used to disable dates client-side                          |
-| POST/PUT/DELETE | `/listings`                   | host CRUD, ownership-checked via `host_id`                                     |
-| POST            | `/bookings`                   | create a booking; validates guest count and date overlap                       |
-| GET             | `/bookings/user/{id}`         | "My trips"                                                                     |
-| GET             | `/bookings/listing/{id}`      | host's bookings for one listing                                                |
-| POST            | `/bookings/{id}/cancel`       | cancel a booking                                                               |
-| GET/POST        | `/listings/{id}/reviews`      | reviews for a listing                                                          |
-| POST/DELETE     | `/wishlist`                   | add/remove a listing from a user's wishlist                                    |
-| GET             | `/users/{id}/listings`        | host dashboard                                                                 |
-| GET             | `/users/{id}/wishlist`        | wishlist page                                                                  |
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/auth/signup`, `/auth/login` | mocked auth, returns the user object |
+| GET | `/listings` | search + filter (location, dates, guests, price, type, amenities) + pagination |
+| GET | `/listings/{id}` | full listing detail |
+| GET | `/listings/{id}/availability` | booked date ranges, used to disable dates client-side |
+| POST/PUT/DELETE | `/listings` | host CRUD, ownership-checked via `host_id` |
+| POST | `/bookings` | create a booking; validates guest count and date overlap |
+| GET | `/bookings/user/{id}` | "My trips" |
+| GET | `/bookings/listing/{id}` | host's bookings for one listing |
+| POST | `/bookings/{id}/cancel` | cancel a booking |
+| GET/POST | `/listings/{id}/reviews` | reviews for a listing |
+| POST/DELETE | `/wishlist` | add/remove a listing from a user's wishlist |
+| GET | `/users/{id}/listings` | host dashboard |
+| GET | `/users/{id}/wishlist` | wishlist page |
 
 ## 5. What's mocked (per the assignment brief)
 
