@@ -1,0 +1,9 @@
+backend/venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/routers/__pycache__/
+backend/airbnb.db
+backend/.env
+frontend/node_modules/
+frontend/.next/
+frontend/.env.localty
