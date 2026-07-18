@@ -77,14 +77,14 @@ export default function FilterBar() {
 
   const activeFilterCount = (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + activeAmenities.length;
 
-  return (
-    <div className="flex items-center gap-3 px-6 md:px-10 py-4 border-b border-hairline overflow-x-auto">
-      <div className="flex items-center gap-2 shrink-0">
+return (
+    <div className="flex items-center gap-3 px-6 md:px-10 py-4 border-b border-hairline">
+      <div className="flex items-center gap-2 overflow-x-auto">
         {types.map((type) => (
           <button
             key={type}
             onClick={() => toggleType(type)}
-            className={`px-4 py-2 rounded-full text-sm border whitespace-nowrap transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm border whitespace-nowrap shrink-0 transition-colors ${
               activeType === type
                 ? "bg-ink text-white border-ink"
                 : "border-hairline text-ink hover:border-ink"
