@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api } from "@/lib/api";
 import { AvailabilityOut, ListingDetail } from "@/lib/types";
 import { formatPrice, nightsBetween } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "./ToastProvider";
+import CheckoutModal from "./CheckoutModal";
 
 function rangesOverlap(aStart: string, aEnd: string, bStart: string, bEnd: string) {
   return aStart < bEnd && bStart < aEnd;
@@ -22,15 +23,17 @@ export default function BookingWidget({ listing }: { listing: ListingDetail }) {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(1);
   const [booked, setBooked] = useState<AvailabilityOut["booked_ranges"]>([]);
-  const [submitting, setSubmitting] = useState(false);
   const [dateError, setDateError] = useState("");
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  useEffect(() => {
+  function loadAvailability() {
     api
       .get<AvailabilityOut>(`/listings/${listing.id}/availability`)
       .then((r) => setBooked(r.booked_ranges))
       .catch(() => setBooked([]));
-  }, [listing.id]);
+  }
+
+  useEffect(loadAvailability, [listing.id]);
 
   const nights = checkIn && checkOut ? Math.max(0, nightsBetween(checkIn, checkOut)) : 0;
   const subtotal = nights * listing.price_per_night;
@@ -51,7 +54,7 @@ export default function BookingWidget({ listing }: { listing: ListingDetail }) {
     setDateError(validateDates(nextIn, nextOut));
   }
 
-  async function handleReserve() {
+  function handleReserve() {
     if (!user) {
       showToast("Log in to book this stay", "info");
       router.push("/login");
@@ -66,28 +69,11 @@ export default function BookingWidget({ listing }: { listing: ListingDetail }) {
       showToast(`This listing sleeps a maximum of ${listing.max_guests} guests`, "error");
       return;
     }
-
-    setSubmitting(true);
-    try {
-      await api.post("/bookings", {
-        listing_id: listing.id,
-        guest_id: user.id,
-        check_in: checkIn,
-        check_out: checkOut,
-        guests,
-      });
-      showToast("Booking confirmed! Check My Trips for details.", "success");
-      router.push("/trips");
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 409) {
-        showToast("Those dates were just booked by someone else - try different dates", "error");
-        api.get<AvailabilityOut>(`/listings/${listing.id}/availability`).then((r) => setBooked(r.booked_ranges));
-      } else {
-        showToast(e instanceof ApiError ? e.message : "Couldn't complete the booking", "error");
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    // The actual POST /bookings call now happens inside CheckoutModal,
+    // after the guest reviews the summary and goes through the mocked
+    // payment step - this is the "booking summary and mocked
+    // checkout/confirmation" flow the brief asks for.
+    setCheckoutOpen(true);
   }
 
   return (
@@ -145,10 +131,9 @@ export default function BookingWidget({ listing }: { listing: ListingDetail }) {
 
       <button
         onClick={handleReserve}
-        disabled={submitting}
         className="w-full bg-rausch hover:bg-rausch-dark disabled:opacity-60 text-white font-semibold rounded-lg py-3 transition-colors"
       >
-        {submitting ? "Booking..." : "Reserve"}
+        Reserve
       </button>
 
       <p className="text-center text-xs text-graytext mt-3">You won&apos;t be charged yet</p>
@@ -176,6 +161,17 @@ export default function BookingWidget({ listing }: { listing: ListingDetail }) {
             <span>{formatPrice(total)}</span>
           </div>
         </div>
+      )}
+
+      {user && (
+        <CheckoutModal
+          open={checkoutOpen}
+          onClose={() => setCheckoutOpen(false)}
+          listing={listing}
+          guestId={user.id}
+          details={{ checkIn, checkOut, guests, nights, subtotal, cleaningFee: listing.cleaning_fee, serviceFee, total }}
+          onBookingConflict={loadAvailability}
+        />
       )}
     </div>
   );

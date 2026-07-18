@@ -125,21 +125,21 @@ wishlists         id, user_id -> users, listing_id -> listings, created_at
 All endpoints are served from the backend root; full interactive docs live
 at `/docs`.
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/auth/signup`, `/auth/login` | mocked auth, returns the user object |
-| GET | `/listings` | search + filter (location, dates, guests, price, type, amenities) + pagination |
-| GET | `/listings/{id}` | full listing detail |
-| GET | `/listings/{id}/availability` | booked date ranges, used to disable dates client-side |
-| POST/PUT/DELETE | `/listings` | host CRUD, ownership-checked via `host_id` |
-| POST | `/bookings` | create a booking; validates guest count and date overlap |
-| GET | `/bookings/user/{id}` | "My trips" |
-| GET | `/bookings/listing/{id}` | host's bookings for one listing |
-| POST | `/bookings/{id}/cancel` | cancel a booking |
-| GET/POST | `/listings/{id}/reviews` | reviews for a listing |
-| POST/DELETE | `/wishlist` | add/remove a listing from a user's wishlist |
-| GET | `/users/{id}/listings` | host dashboard |
-| GET | `/users/{id}/wishlist` | wishlist page |
+| Method          | Path                          | Purpose                                                                        |
+| --------------- | ----------------------------- | ------------------------------------------------------------------------------ |
+| POST            | `/auth/signup`, `/auth/login` | mocked auth, returns the user object                                           |
+| GET             | `/listings`                   | search + filter (location, dates, guests, price, type, amenities) + pagination |
+| GET             | `/listings/{id}`              | full listing detail                                                            |
+| GET             | `/listings/{id}/availability` | booked date ranges, used to disable dates client-side                          |
+| POST/PUT/DELETE | `/listings`                   | host CRUD, ownership-checked via `host_id`                                     |
+| POST            | `/bookings`                   | create a booking; validates guest count and date overlap                       |
+| GET             | `/bookings/user/{id}`         | "My trips"                                                                     |
+| GET             | `/bookings/listing/{id}`      | host's bookings for one listing                                                |
+| POST            | `/bookings/{id}/cancel`       | cancel a booking                                                               |
+| GET/POST        | `/listings/{id}/reviews`      | reviews for a listing                                                          |
+| POST/DELETE     | `/wishlist`                   | add/remove a listing from a user's wishlist                                    |
+| GET             | `/users/{id}/listings`        | host dashboard                                                                 |
+| GET             | `/users/{id}/wishlist`        | wishlist page                                                                  |
 
 ## 5. What's mocked (per the assignment brief)
 
@@ -148,13 +148,18 @@ at `/docs`.
   the logged-in user in `localStorage` and sends their `id` with requests
   that need to know who's asking. Fine for a demo; a real build would swap
   this for hashed passwords and JWTs/sessions.
-- **Payments** - "Reserve" creates a confirmed booking directly; there's no
-  payment step, per the brief.
-- **Map / geolocation** - listings store `latitude`/`longitude` but the
-  frontend doesn't render an interactive map; this was deprioritized in
-  favor of the core browse/search/booking flow given the time budget.
-  Messaging and identity verification are out of scope entirely, as allowed
-  by the brief.
+- **Payment / checkout** - clicking "Reserve" opens a checkout modal with a
+  full price breakdown and a disabled, non-functional card form (see
+  `CheckoutModal.tsx`). "Confirm and pay" creates the booking and shows a
+  confirmation screen - the flow looks and feels real, but no payment
+  processor is wired up, and the modal says so explicitly.
+- **Messaging, identity verification, live map** - each has a real entry
+  point in the UI (a "Message host" button, an "Identity verification"
+  link, and a location section on the listing page) that opens a "Coming
+  soon" modal explaining what's out of scope, instead of just being absent.
+  The location section itself renders a static SVG map plotting the
+  listing's stored lat/lng - not a real tile-based map (that needs a
+  Google Maps/Mapbox API key), which the brief allows.
 - **Photos** - seeded with `picsum.photos` placeholder images. Hosts create
   listings by pasting image URLs rather than uploading files.
 

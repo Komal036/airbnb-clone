@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Star, MapPin, BedDouble, Bath, Users } from "lucide-react";
+import { Star, MapPin, BedDouble, Bath, Users, MessageCircle, BadgeCheck } from "lucide-react";
 import { api } from "@/lib/api";
 import { ListingDetail } from "@/lib/types";
 import { locationLabel } from "@/lib/format";
@@ -12,6 +12,8 @@ import BookingWidget from "@/components/BookingWidget";
 import ReviewsSection from "@/components/ReviewsSection";
 import AmenityIcon from "@/components/AmenityIcon";
 import WishlistButton from "@/components/WishlistButton";
+import ComingSoonModal from "@/components/ComingSoonModal";
+import StaticMapPlaceholder from "@/components/StaticMapPlaceholder";
 
 export default function ListingDetailPage() {
   const params = useParams();
@@ -19,6 +21,8 @@ export default function ListingDetailPage() {
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [identityOpen, setIdentityOpen] = useState(false);
 
   useEffect(() => {
     const query = user ? `?user_id=${user.id}` : "";
@@ -73,6 +77,12 @@ export default function ListingDetailPage() {
                 {listing.max_guests} guests · {listing.bedrooms} bedroom{listing.bedrooms !== 1 ? "s" : ""} ·{" "}
                 {listing.beds} bed{listing.beds !== 1 ? "s" : ""} · {listing.bathrooms} bath{listing.bathrooms !== 1 ? "s" : ""}
               </p>
+              <button
+                onClick={() => setMessageOpen(true)}
+                className="flex items-center gap-1.5 text-sm font-medium text-ink underline mt-2"
+              >
+                <MessageCircle size={14} /> Message host
+              </button>
             </div>
             {listing.host.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -114,13 +124,30 @@ export default function ListingDetailPage() {
             <div className="py-6 border-b border-hairline">
               <p className="font-medium text-ink mb-1">About the host</p>
               <p className="text-graytext text-sm leading-relaxed">{listing.host.bio}</p>
-              {listing.host.is_superhost && (
-                <span className="inline-block mt-2 text-xs font-medium bg-rausch/10 text-rausch px-2 py-1 rounded">
-                  Superhost
-                </span>
-              )}
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
+                {listing.host.is_superhost && (
+                  <span className="inline-block text-xs font-medium bg-rausch/10 text-rausch px-2 py-1 rounded">
+                    Superhost
+                  </span>
+                )}
+                <button
+                  onClick={() => setIdentityOpen(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-graytext underline"
+                >
+                  <BadgeCheck size={13} /> Identity verification
+                </button>
+              </div>
             </div>
           )}
+
+          <div className="py-6 border-b border-hairline">
+            <p className="font-semibold text-ink mb-4">Where you&apos;ll be</p>
+            <StaticMapPlaceholder
+              latitude={listing.latitude}
+              longitude={listing.longitude}
+              locationLabel={locationLabel(listing.city, listing.state, listing.country)}
+            />
+          </div>
 
           <div className="py-6 border-b border-hairline">
             <p className="font-semibold text-ink mb-4">What this place offers</p>
@@ -141,6 +168,21 @@ export default function ListingDetailPage() {
           <BookingWidget listing={listing} />
         </div>
       </div>
+
+      <ComingSoonModal
+        open={messageOpen}
+        onClose={() => setMessageOpen(false)}
+        icon={MessageCircle}
+        title="Messaging"
+        description="Direct messaging between guests and hosts isn't built in this version - it's flagged as out of scope in the assignment brief."
+      />
+      <ComingSoonModal
+        open={identityOpen}
+        onClose={() => setIdentityOpen(false)}
+        icon={BadgeCheck}
+        title="Identity verification"
+        description="ID verification for hosts and guests isn't implemented here - it's flagged as out of scope in the assignment brief."
+      />
     </div>
   );
 }
